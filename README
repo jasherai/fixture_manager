@@ -1,0 +1,15 @@
+FixtureManager
+==============
+
+This plugin provides a few new methods to ActiveRecord through a new module ActiveRecord::FixtureManagement. This module provides two public class methods, to_cms_fixture and to_test_fixture. See the RDocs for descriptions of their functionality. 
+
+A FixtureManager class is also provided. This class provides two public class methods, save_all and load_All. Again please read the docs.
+
+Four Rake tasks are include as well, cms:save_fixtures, cms:load_fixtures, test:save_fixtures, test:load_fixtures. These 4 methods are simply wrappers around FixtureManager.save_all and FixtureManager.load_all (see descriptions for the difference between CMS and test). Remember, the test:load_fixtures will work on the DB specified by your current environment, much like db:fixtures:load.
+
+NOTE: To use the FixtureManager (or the associated Rake tasks) you must provide an array of ActiveRecord classes to FixtureManager.fixture_classes. See example below:
+
+# RAILS_ROOT/config/initializers/fixture_manager_config.rb
+FixtureManager.fixture_classes = [Apartment, Host]
+
+Copyright (c) 2008 [Andrew Bloom], released under the MIT license
