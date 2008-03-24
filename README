@@ -10,6 +10,6 @@ Four Rake tasks are include as well, cms:save_fixtures, cms:load_fixtures, test:
 NOTE: To use the FixtureManager (or the associated Rake tasks) you must provide an array of ActiveRecord classes to FixtureManager.fixture_classes. See example below:
 
 # RAILS_ROOT/config/initializers/fixture_manager_config.rb
-FixtureManager.fixture_classes = [Apartment, Host]a
+FixtureManager.fixture_classes = [Apartment, Host]
 
 Copyright (c) 2008 [Andrew Bloom], released under the MIT license
