@@ -12,6 +12,16 @@ module ActiveRecord
         write_fixture_file("cms")
       end
 
+      def get_many_to_many_association_config
+        self.reflect_on_all_associations(:has_and_belongs_to_many).collect do |a| 
+          {
+            :primary_key_name => a.primary_key_name, 
+            :association_foreign_key => a.association_foreign_key, 
+            :join_table => a.options[:join_table]
+          }
+        end
+      end
+      
       private
         def write_fixture_file(fixture_path)
           raise "fixture_path cannot be blank!" if fixture_path.blank?
@@ -25,21 +35,19 @@ module ActiveRecord
           string = YAML.dump data
           string = string[0..3] + "!omap" + string[4..-1]
 
+          # write class yaml file
           write_yml(string, fixture_path, self.table_name, self.to_s.titleize)
           
-          association_infos = self.reflect_on_all_associations(:has_and_belongs_to_many).collect do |a| 
-            {
-              :primary_key_name => a.primary_key_name, 
-              :association_foreign_key => a.association_foreign_key, 
-              :join_table => a.options[:join_table]
-            }
-          end
-          logger.info "Assoc Info: #{association_infos.inspect}"
+          # gather many to many data
+          association_infos = get_many_to_many_association_config
+
           association_infos.each do |association_info|
             data = self.connection.execute("select #{association_info[:primary_key_name]}, #{association_info[:association_foreign_key]} from #{association_info[:join_table]}")
             data.each do |h| 
               h.delete_if{|k, v| ![association_info[:primary_key_name], association_info[:association_foreign_key]].include?(k)}
             end
+            
+            # write many to many yaml
             write_yml(data.to_yaml, fixture_path, association_info[:join_table], association_info[:join_table])
           end
         end
