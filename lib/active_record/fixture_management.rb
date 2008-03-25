@@ -25,19 +25,35 @@ module ActiveRecord
           string = YAML.dump data
           string = string[0..3] + "!omap" + string[4..-1]
 
-          File.open(File.expand_path("#{fixture_path}/fixtures/#{table_name}.yml", RAILS_ROOT), 'w') do |out|  
-            out.puts string
+          write_yml(string, fixture_path, self.table_name, self.to_s.titleize)
+          
+          association_infos = self.reflect_on_all_associations(:has_and_belongs_to_many).collect do |a| 
+            {
+              :primary_key_name => a.primary_key_name, 
+              :association_foreign_key => a.association_foreign_key, 
+              :join_table => a.options[:join_table]
+            }
           end
-          logger.info "Writing #{self.to_s.titleize} to #{fixture_path == "test" ? fixture_path.titleize : fixture_path.upcase} path"
+          logger.info "Assoc Info: #{association_infos.inspect}"
+          association_infos.each do |association_info|
+            data = self.connection.execute("select #{association_info[:primary_key_name]}, #{association_info[:association_foreign_key]} from #{association_info[:join_table]}")
+            data.each do |h| 
+              h.delete_if{|k, v| ![association_info[:primary_key_name], association_info[:association_foreign_key]].include?(k)}
+            end
+            write_yml(data.to_yaml, fixture_path, association_info[:join_table], association_info[:join_table])
+          end
         end
-    end
-    
-    module InstanceMethods
+        
+        def write_yml(content, fixture_path, table_name, name)
+          File.open(File.expand_path("#{fixture_path}/fixtures/#{table_name}.yml", RAILS_ROOT), 'w') do |out|  
+            out.puts content
+          end
+          logger.info "Writing #{name} to #{fixture_path == "test" ? fixture_path.titleize : fixture_path.upcase} path"
+        end
     end
     
     def self.included(receiver)
       receiver.extend         ClassMethods
-      receiver.send :include, InstanceMethods
     end
   end
 end
