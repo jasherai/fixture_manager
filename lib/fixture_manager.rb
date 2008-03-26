@@ -25,8 +25,13 @@ class FixtureManager
   def self.load_all(test = false)
     RAILS_DEFAULT_LOGGER.info "Loading CMS data"
     begin
+      fixture_path = File.join(RAILS_ROOT, "#{test ? "test" : "cms"}", "fixtures")
+      
       tables = @@fixture_classes.collect{|klass| klass.table_name}
-      Fixtures.create_fixtures(File.join(RAILS_ROOT, "#{test ? "test" : "cms"}", "fixtures"), tables)
+      Fixtures.create_fixtures(fixture_path, tables)
+      
+      tables = @@fixture_classes.collect{|klass| klass.get_many_to_many_association_config.collect{|a| a[:join_table]}}.flatten
+      Fixtures.create_many_to_many_fixtures(fixture_path, tables)
     rescue => e
       RAILS_DEFAULT_LOGGER.error e.message
       RAILS_DEFAULT_LOGGER.error e.backtrace.join("\n\t")
