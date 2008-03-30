@@ -8,7 +8,7 @@ class Fixtures
       data = YAML.load_file(yaml_file)
       data.each do |entry|
         many_to_many_insert(entry, table_name)
-      end
+      end if data
     end
   end
   
