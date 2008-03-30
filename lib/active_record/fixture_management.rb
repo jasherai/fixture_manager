@@ -53,6 +53,8 @@ module ActiveRecord
         end
         
         def write_yml(content, fixture_path, table_name, name)
+          FileUtils.mkdir(fixture_path) unless File.exists?(fixture_path)
+          FileUtils.mkdir("#{fixture_path}/fixtures") unless File.exists?("#{fixture_path}/fixtures")
           File.open(File.expand_path("#{fixture_path}/fixtures/#{table_name}.yml", RAILS_ROOT), 'w') do |out|  
             out.puts content
           end
