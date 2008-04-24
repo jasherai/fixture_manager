@@ -1,4 +1,4 @@
-unless RAILS_ENV == 'test'
+if RAILS_ENV == 'development'
   base_path = File.dirname(__FILE__) + "/lib/"
   require base_path + "fixture_manager" 
   require base_path + "active_record/fixture_management"
