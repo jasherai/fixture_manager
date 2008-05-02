@@ -1,5 +1,3 @@
-require 'active_record/fixtures'
-
 class FixtureManager
   @@fixture_classes = []
   cattr_accessor :fixture_classes
