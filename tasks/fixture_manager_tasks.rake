@@ -1,26 +1,36 @@
 namespace :cms do
   desc "Save the models defined in FixtureManager.fixture_classes to RAILS_ROOT/cms/fixtures"
   task :save_fixtures => [:environment] do
-    FixtureManager.save_all
-    after_save
+    if FixtureManager.save_all
+      after_save
+    else
+      error!
+    end
   end
   
   desc "Load the models defined in FixtureManager.fixture_classes to RAILS_ROOT/cms/fixtures"
   task :load_fixtures => [:environment] do
-    FixtureManager.load_all
+    unless FixtureManager.load_all
+      error!
+    end
   end
 end
 
 namespace :test do
   desc "Save the models defined in FixtureManager.fixture_classes to RAILS_ROOT/test/fixtures"
   task :save_fixtures => [:environment] do
-    FixtureManager.save_all(true)
-    after_save
+    if FixtureManager.save_all(true)
+      after_save
+    else
+      error!
+    end
   end
   
   desc "Load the models defined in FixtureManager.fixture_classes to RAILS_ROOT/test/fixtures"
   task :load_fixtures => [:environment] do
-    FixtureManager.load_all(true)
+    unless FixtureManager.load_all(true)
+      error!
+    end
   end
   
   def after_save
@@ -29,5 +39,9 @@ namespace :test do
     rescue Exception => e
       
     end
+  end
+  
+  def error!
+    puts "Please check the log, something has gone wrong!"
   end
 end
