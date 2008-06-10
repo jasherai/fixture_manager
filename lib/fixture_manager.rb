@@ -6,18 +6,23 @@ class FixtureManager
     RAILS_DEFAULT_LOGGER.info "Saving CMS data"
 
     @@fixture_classes.each do |klass|
-      begin
-        test ? klass.to_test_fixture : klass.to_cms_fixture
-      rescue Exception => e
-        RAILS_DEFAULT_LOGGER.error "Error saving: #{klass}"
-        RAILS_DEFAULT_LOGGER.error e.message
-        RAILS_DEFAULT_LOGGER.error e.backtrace.join("\n\t")
-        return false
-      end
+      return false unless save(klass, test)
     end
 
     RAILS_DEFAULT_LOGGER.info "All data saved"    
     return true
+  end
+  
+  def self.save(klass, test = false)
+    begin
+      test ? klass.to_test_fixture : klass.to_cms_fixture
+      return true
+    rescue Exception => e
+      RAILS_DEFAULT_LOGGER.error "Error saving: #{klass}"
+      RAILS_DEFAULT_LOGGER.error e.message
+      RAILS_DEFAULT_LOGGER.error e.backtrace.join("\n\t")
+      return false
+    end
   end
   
   def self.load_all(test = false)
